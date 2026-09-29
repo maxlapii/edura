@@ -1,0 +1,2 @@
+export const CASE_CATEGORIES = ["ACADEMIC", "ATTENDANCE", "BEHAVIOR", "WELLBEING", "OTHER"] as const;
+export const CASE_STATUSES = ["OPEN", "ASSIGNED", "IN_PROGRESS", "FOLLOW_UP", "RESOLVED"] as const;

@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://edura:edura@localhost:5432/edura
+  TEST_DATABASE_URL: postgresql://edura:edura@localhost:5432/edura_test
+  E2E_DATABASE_URL: postgresql://edura:edura@localhost:5432/edura_e2e
+  BETTER_AUTH_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
+  BETTER_AUTH_URL: http://localhost:3100
+  NEXT_PUBLIC_APP_URL: http://localhost:3100
+  CRON_SECRET: ci-cron
+
+jobs:
+  quality:
+    name: Typecheck, lint, unit, integration, coverage, build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: edura
+          POSTGRES_PASSWORD: edura
+          POSTGRES_DB: edura
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U edura"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Create databases
+        run: |
+          PGPASSWORD=edura psql -h localhost -U edura -d edura -c "CREATE DATABASE edura_test;"
+          PGPASSWORD=edura psql -h localhost -U edura -d edura -c "CREATE DATABASE edura_e2e;"
+      - run: pnpm prisma generate
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm prisma migrate deploy
+      - name: Unit + integration tests with coverage
+        run: pnpm test:coverage
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+      - name: Production build
+        run: pnpm build
+
+  e2e:
+    name: Critical E2E tests
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: edura
+          POSTGRES_PASSWORD: edura
+          POSTGRES_DB: edura
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U edura"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: PGPASSWORD=edura psql -h localhost -U edura -d edura -c "CREATE DATABASE edura_e2e;"
+      - run: pnpm prisma generate
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
