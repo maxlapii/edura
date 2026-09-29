@@ -24,12 +24,12 @@ export function FilterField({ label, children }: { label: string; children: Reac
 }
 
 export function FilterInput(props: React.ComponentProps<"input">) {
-  return <Input {...props} className="h-10 w-48 py-2" />;
+  return <Input {...props} className="h-10 w-48" />;
 }
 
 export function FilterSelect({ options, empty = "All", ...props }: React.ComponentProps<"select"> & { options: Array<{ value: string; label: string }>; empty?: string | null }) {
   return (
-    <Select {...props} className="h-10 w-48 py-2">
+    <Select {...props} className="h-10 w-48">
       {empty !== null && <option value="">{empty}</option>}
       {options.map((o) => (
         <option key={o.value} value={o.value}>

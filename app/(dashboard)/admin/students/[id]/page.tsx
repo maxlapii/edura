@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isEnabled } from "@/lib/features";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { getStudent } from "@/modules/students";
 import { Alert, Badge, Card, DescriptionList, LinkButton, PageHeader, StatusBadge, Table, TBody, TD, TH, THead, TR } from "@/components/ui";
@@ -107,12 +108,12 @@ export default async function StudentDetailPage({ params, searchParams }: PagePr
                 { label: "Homeroom teacher", value: student.class?.homeroomTeacher?.user.name ?? "—" },
                 { label: "Date of birth", value: fmtDate(student.dateOfBirth) },
                 { label: "Enrolled", value: fmtDate(student.enrollmentDate) },
-                { label: "Support cases", value: student.supportCases.length },
-                { label: "Incidents", value: student.disciplineIncidents.length },
+                ...(isEnabled("supportCases") ? [{ label: "Support cases", value: student.supportCases.length }] : []),
+                ...(isEnabled("discipline") ? [{ label: "Incidents", value: student.disciplineIncidents.length }] : []),
               ]}
             />
           </Card>
-          {student.supportCases.length > 0 && (
+          {isEnabled("supportCases") && student.supportCases.length > 0 && (
             <Card title="Recent support cases">
               <ul className="divide-y divide-slate-100 text-sm">
                 {student.supportCases.map((c) => (

@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { isEnabled } from "@/lib/features";
 import { useState, type FormEvent } from "react";
 import { apiFetch, errorMessage } from "@/lib/client/api";
 import { Alert, Button, Checkbox, Field, Input, Select, Textarea } from "@/components/ui";
@@ -96,7 +97,7 @@ export function EventForm({ initial }: { initial?: EventValues }) {
           <Input id="location" name="location" maxLength={200} value={location} onChange={(e) => setLocation(e.target.value)} />
         </Field>
       </div>
-      <Checkbox name="requiresApproval" checked={requiresApproval} onChange={(e) => setRequiresApproval(e.target.checked)} label="Requires administrator approval before it is scheduled" />
+      {isEnabled("approvals") && <Checkbox name="requiresApproval" checked={requiresApproval} onChange={(e) => setRequiresApproval(e.target.checked)} label="Requires administrator approval before it is scheduled" />}
       <div className="flex gap-2">
         <Button type="submit" disabled={busy} data-testid="submit">
           {busy ? "Saving…" : editing ? "Save changes" : "Create event"}

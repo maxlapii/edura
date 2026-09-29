@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isEnabled } from "@/lib/features";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { isStaffLike } from "@/lib/permissions";
 import { listMessages } from "@/modules/communication";
@@ -23,7 +24,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Sea
         description="Direct messages with teachers, parents, students and administrators."
         actions={
           <>
-            {isStaffLike(user) && (
+            {isStaffLike(user) && isEnabled("messageTemplates") && (
               <LinkButton href="/messages/templates" variant="outline">
                 Templates
               </LinkButton>

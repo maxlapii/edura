@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isEnabled } from "@/lib/features";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getStudent } from "@/modules/students";
@@ -45,7 +46,11 @@ export default async function StudentProfilePage(props: { params: Promise<{ id: 
         <StatCard label="Attendance rate" value={attendance ? `${attendance.stats.attendanceRate}%` : "—"} tone={attendance && attendance.flagged ? "bad" : "good"} hint={attendance ? `${attendance.stats.absent} absences · ${attendance.stats.late} late` : undefined} />
         <StatCard label="Recent absences" value={attendance?.recentAbsences ?? "—"} tone={attendance?.flagged ? "bad" : "default"} hint={attendance ? `threshold ${attendance.threshold}` : undefined} />
         <StatCard label="Overall average" value={grades?.overall === null || grades?.overall === undefined ? "—" : `${grades.overall}%`} tone="info" />
-        <StatCard label="Open support cases" value={student.supportCases.filter((c) => c.status !== "RESOLVED").length} />
+        {isEnabled("supportCases") ? (
+          <StatCard label="Open support cases" value={student.supportCases.filter((c) => c.status !== "RESOLVED").length} />
+        ) : (
+          <StatCard label="Submissions" value={submissions.length} hint="recent" />
+        )}
       </div>
 
       {attendance?.flagged && <Alert tone="warning">Repeated absences: {attendance.recentAbsences} in the recent window (threshold {attendance.threshold}).</Alert>}
@@ -199,7 +204,7 @@ export default async function StudentProfilePage(props: { params: Promise<{ id: 
         )}
       </Card>
 
-      {student.supportCases.length > 0 && (
+      {isEnabled("supportCases") && student.supportCases.length > 0 && (
         <Card title="Support cases" padded={false}>
           <Table className="rounded-t-none border-0">
             <THead>
@@ -230,7 +235,7 @@ export default async function StudentProfilePage(props: { params: Promise<{ id: 
         </Card>
       )}
 
-      {student.disciplineIncidents.length > 0 && (
+      {isEnabled("discipline") && student.disciplineIncidents.length > 0 && (
         <Card title="Discipline" padded={false}>
           <Table className="rounded-t-none border-0">
             <THead>

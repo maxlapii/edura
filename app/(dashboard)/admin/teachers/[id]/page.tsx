@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isEnabled } from "@/lib/features";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { getTeacher } from "@/modules/teachers";
@@ -35,7 +36,7 @@ export default async function TeacherDetailPage({ params, searchParams }: PagePr
     { href: `${base}?tab=workload`, label: "Workload" },
     { href: `${base}?tab=availability`, label: "Availability" },
     { href: `${base}?tab=duties`, label: "Duties", count: teacher.duties.length },
-    { href: `${base}?tab=development`, label: "Professional development" },
+    ...(isEnabled("professionalDevelopment") ? [{ href: `${base}?tab=development`, label: "Professional development" }] : []),
     { href: `${base}?tab=leave`, label: "Leave" },
   ];
   const current = tab === "overview" ? base : `${base}?tab=${tab}`;
@@ -69,7 +70,7 @@ export default async function TeacherDetailPage({ params, searchParams }: PagePr
       {tab === "workload" && <WorkloadTab teacherId={teacher.id} user={user} />}
       {tab === "availability" && <AvailabilityTab teacher={teacher} user={user} />}
       {tab === "duties" && <DutiesTab teacher={teacher} user={user} />}
-      {tab === "development" && <DevelopmentTab teacher={teacher} />}
+      {tab === "development" && isEnabled("professionalDevelopment") && <DevelopmentTab teacher={teacher} />}
       {tab === "leave" && <LeaveTab teacherId={teacher.id} />}
     </div>
   );

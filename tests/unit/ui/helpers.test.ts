@@ -8,18 +8,18 @@ const user = (role: AuthUser["role"]): AuthUser => ({ id: "u", email: "e", name:
 describe("navForUser", () => {
   it("shows administration only to administrators and teaching items to teachers", () => {
     const admin = navForUser(user("SCHOOL_ADMIN"));
-    expect(admin.filter((s) => s.group === "Administration").map((s) => s.title)).toEqual(["People", "Academics", "Operations", "Student welfare", "Insights & settings"]);
+    expect(admin.filter((s) => s.group === "Administration").map((s) => s.title)).toEqual(["People", "School setup", "Daily operations"]);
     expect(admin.find((s) => s.title === "Teaching")?.items.map((i) => i.href) ?? []).not.toContain("/schedule");
     const teacher = navForUser(user("TEACHER"));
     expect(teacher.some((s) => s.group === "Administration")).toBe(false);
     expect(teacher.find((s) => s.title === "Teaching")?.items.map((i) => i.href)).toEqual(expect.arrayContaining(["/schedule", "/classes", "/attendance"]));
     expect(teacher.find((s) => s.title === "My work")?.items.map((i) => i.href)).toEqual(expect.arrayContaining(["/tasks", "/leave"]));
     const student = navForUser(user("STUDENT"));
-    expect(student.flatMap((s) => s.items.map((i) => i.href))).toEqual(expect.arrayContaining(["/schedule", "/assignments", "/grades", "/report-cards"]));
+    expect(student.flatMap((s) => s.items.map((i) => i.href))).toEqual(expect.arrayContaining(["/schedule", "/assignments", "/grades"]));
     expect(student.flatMap((s) => s.items.map((i) => i.href))).not.toContain("/attendance");
     expect(navForUser(user("SUPER_ADMIN")).flatMap((s) => s.items.map((i) => i.href))).toContain("/admin/schools");
     expect(navForUser(user("SCHOOL_ADMIN")).flatMap((s) => s.items.map((i) => i.href))).not.toContain("/admin/schools");
-    expect(navForUser(user("DEPARTMENT_HEAD")).flatMap((s) => s.items.map((i) => i.href))).toContain("/department");
+    expect(navForUser(user("DEPARTMENT_HEAD")).flatMap((s) => s.items.map((i) => i.href))).toContain("/lesson-plans");
   });
   it("routes admins to /admin and others to /dashboard", () => {
     expect(homeForUser(user("PRINCIPAL"))).toBe("/admin");

@@ -43,6 +43,12 @@ Browser ──► Next.js App Router
    workflow trigger.
 5. Errors are `AppError`s mapped to `{ error: { code, message, details } }` with the right HTTP status.
 
+## Optional features
+
+`lib/features.ts` lists the optional features with the page and API prefixes they own. `proxy.ts` (Next.js
+request proxy) returns 404 for switched-off features, and `lib/nav.ts` prunes their menu and create-menu entries,
+so a feature is removed from the product without deleting its module.
+
 ## Automation
 
 Business events call `dispatch(trigger, schoolId, payload)`. Active `WorkflowRule`s for the school and trigger are

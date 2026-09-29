@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isEnabled } from "@/lib/features";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { hasPermission, isAdmin } from "@/lib/permissions";
 import { prisma } from "@/lib/db";
@@ -72,7 +73,7 @@ export default async function EventDetailPage({ params }: { params: IdParams }) 
                 { label: "Organizer", value: e.organizer?.name ?? "—" },
                 { label: "Location", value: e.location ?? "—" },
                 { label: "Audience", value: e.audience === "SCHOOL" ? "Entire school" : humanize(e.audience) },
-                { label: "Requires approval", value: e.requiresApproval ? "Yes" : "No" },
+                ...(isEnabled("approvals") ? [{ label: "Requires approval", value: e.requiresApproval ? "Yes" : "No" }] : []),
               ]}
             />
             {e.description && <p className="mt-4 whitespace-pre-wrap text-sm text-slate-700">{e.description}</p>}

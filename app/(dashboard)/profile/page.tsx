@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { isEnabled } from "@/lib/features";
 import { notFound } from "next/navigation";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { getUserProfile } from "@/modules/users";
 import { Card, DescriptionList, PageHeader, StatusBadge } from "@/components/ui";
 import { fmtDateTime, humanize } from "@/lib/format";
 import { ChangePasswordForm } from "./change-password-form";
+import { AvailabilityForm, type Entry } from "../professional-development/availability-form";
+import { prisma } from "@/lib/db";
+import { listPeriods } from "@/modules/timetable";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +16,10 @@ export default async function ProfilePage() {
   const user = await requireCurrentUser();
   const profile = await getUserProfile(user);
   if (!profile) notFound();
+  // Teachers keep their availability here (it drives substitute suggestions).
+  const availability = profile.teacher
+    ? await Promise.all([listPeriods(user), prisma.teacherAvailability.findMany({ where: { teacherId: profile.teacher.id }, select: { dayOfWeek: true, periodId: true, type: true } })])
+    : null;
 
   const roleItems = profile.teacher
     ? [
@@ -56,7 +64,7 @@ export default async function ProfilePage() {
             ...roleItems,
           ]}
         />
-        {profile.teacher && (
+        {profile.teacher && isEnabled("professionalDevelopment") && (
           <p className="mt-3 text-xs text-slate-500">
             Certifications, training and availability are managed under{" "}
             <Link href="/professional-development" className="text-brand-700 hover:underline">
@@ -66,6 +74,11 @@ export default async function ProfilePage() {
           </p>
         )}
       </Card>
+      {profile.teacher && availability && (
+        <Card title="My availability" description="Mark periods you prefer, or cannot take, so substitute suggestions respect them.">
+          <AvailabilityForm teacherId={profile.teacher.id} periods={availability[0]} initial={availability[1] as Entry[]} />
+        </Card>
+      )}
       <Card title="Change password" description="You will stay signed in here; other sessions are revoked.">
         <ChangePasswordForm />
       </Card>

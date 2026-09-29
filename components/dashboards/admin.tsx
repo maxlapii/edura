@@ -52,7 +52,7 @@ export function AdminDashboard({ data, principal, name }: { data: Admin | Princi
           <div className="grid h-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1 xl:grid-rows-[minmax(260px,1fr)_auto_auto]">
             <OceanCard title="Students" value={data.counts.students} sub={`${data.counts.classes} classes`} delta={`${data.counts.teachers} teachers`} bars={data.classSizes.slice(0, 10).map((c) => ({ label: c.name, value: c.students }))} href="/admin/classes" />
             <div className="flex flex-col gap-4">
-              <CountCard icon={<ShieldCheck />} title="Pending approvals" value={data.pendingApprovals} sub={`${data.pendingLeave.length} leave`} actionHref="/admin/approvals" actionLabel="Review approvals" />
+              <CountCard icon={<ShieldCheck />} title="Leave to review" value={data.pendingLeave.length} sub={data.pendingLeave.length === 1 ? "request" : "requests"} actionHref="/admin/leave" actionLabel="Review leave requests" />
             </div>
             <DarkTrendCard title="Attendance records" value={recordsTotal.toLocaleString("en-GB")} sub={`${data.attendanceToday.sessions} sessions today`} delta={avg !== null ? `${avg}% avg` : undefined} chip="14 days" points={trendTotals.map((t) => t.total)} labels={trendTotals.map((t, i) => (i === 0 || i === trendTotals.length - 1 ? fmtDate(t.date).slice(5).replace("-", "/") : ""))} />
           </div>
@@ -193,7 +193,7 @@ export function AdminDashboard({ data, principal, name }: { data: Admin | Princi
       {p && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <StatCard label="Attendance (30 days)" value={`${p.attendance30Days.rate}%`} hint={`${p.attendance30Days.total} records`} tone="good" progress={p.attendance30Days.rate} />
-          <StatCard label="Open support cases" value={(p.supportCases.OPEN ?? 0) + (p.supportCases.ASSIGNED ?? 0) + (p.supportCases.IN_PROGRESS ?? 0) + (p.supportCases.FOLLOW_UP ?? 0)} href="/admin/support-cases" />
+          <StatCard label="Teachers absent today" value={data.absentTeachers.length} href="/admin/leave" tone={data.absentTeachers.length ? "warn" : "good"} />
           <StatCard label="Average score" value={p.academic.averageScore ?? "—"} hint={`${p.academic.gradedItems} graded`} tone="info" />
         </div>
       )}

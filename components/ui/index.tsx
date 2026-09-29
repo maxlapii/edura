@@ -243,13 +243,18 @@ export function StatusBadge({ status }: { status: string | null | undefined }) {
 const inputBase =
   "block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink transition placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 disabled:bg-slate-50 disabled:text-slate-500";
 
+// Single-line controls get a fixed height and no vertical padding so the browser centres the text,
+// which keeps it from clipping when a page sets a custom height (h-9, h-10…).
+const singleLine = "h-11 py-0";
+
 export function Input({ className, ...props }: ComponentProps<"input">) {
-  return <input className={cn(inputBase, className)} {...props} />;
+  const isBox = props.type === "checkbox" || props.type === "radio" || props.type === "file";
+  return <input className={cn(inputBase, !isBox && singleLine, className)} {...props} />;
 }
 
 export function Select({ className, children, ...props }: ComponentProps<"select">) {
   return (
-    <select className={cn(inputBase, "appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22><path stroke=%22%23222026%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22M6 8l4 4 4-4%22/></svg>')] bg-[length:1rem] bg-[right_0.65rem_center] bg-no-repeat pr-9", className)} {...props}>
+    <select className={cn(inputBase, props.multiple ? "py-2" : singleLine, "appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 20 20%22><path stroke=%22%23222026%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%221.5%22 d=%22M6 8l4 4 4-4%22/></svg>')] bg-[length:1rem] bg-[right_0.65rem_center] bg-no-repeat pr-9", className)} {...props}>
       {children}
     </select>
   );

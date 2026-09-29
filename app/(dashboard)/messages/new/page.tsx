@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isEnabled } from "@/lib/features";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { hasPermission, isAdmin, isStaffLike } from "@/lib/permissions";
 import { Alert, Card, PageHeader } from "@/components/ui";
@@ -35,7 +36,7 @@ export default async function NewMessagePage({ searchParams }: { searchParams: S
           classes={classes}
           departments={departments}
           canPickAudience={isAdmin(user)}
-          canUseTemplates={staff}
+          canUseTemplates={staff && isEnabled("messageTemplates")}
           prefill={{ to, classId: param(sp.classId), threadId: param(sp.threadId), subject: param(sp.subject), studentId: param(sp.studentId) }}
         />
       </Card>
