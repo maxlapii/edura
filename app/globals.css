@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary blue #1B87E1 (kept under the brand-* name used across pages) */
+  --color-brand-50: #eaf4fd;
+  --color-brand-100: #d4e8fb;
+  --color-brand-200: #aad2f6;
+  --color-brand-300: #7fbbf0;
+  --color-brand-400: #4fa2ea;
+  --color-brand-500: #1b87e1;
+  --color-brand-600: #1672c0;
+  --color-brand-700: #125e9e;
+  --color-brand-800: #0f4b7e;
+  --color-brand-900: #0c3a61;
+  /* Mint accent #43E7D4 */
+  --color-accent-50: #e8fcf9;
+  --color-accent-100: #c9f7f1;
+  --color-accent-300: #86efe3;
+  --color-accent-400: #62ebdb;
+  --color-accent-500: #43e7d4;
+  --color-accent-600: #1dbfad;
+  --color-accent-700: #13877b;
+  /* Ink, text and surfaces */
+  --color-ink: #222026;
+  --color-ink-soft: #34313a;
+  --color-muted: #858a96;
+  --color-canvas: #eef1f5;
+  --color-frame: #ffffff;
+  /* Soft tints (legacy names kept so existing pages keep working) */
+  --color-pastel-blue: #e4f0fc;
+  --color-pastel-lavender: #e9eefb;
+  --color-pastel-green: #dcf8f4;
+  --color-pastel-peach: #fdf1e4;
+  --color-pastel-yellow: #fdf6dd;
+  --color-pastel-rose: #fde8ec;
+
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-arbutus), ui-serif, Georgia, "Times New Roman", serif;
+
+  --shadow-card: 0 1px 2px rgb(34 32 38 / 0.04), 0 8px 24px -16px rgb(34 32 38 / 0.18);
+  --shadow-pop: 0 22px 48px -20px rgb(34 32 38 / 0.35), 0 4px 10px -4px rgb(34 32 38 / 0.12);
+  --shadow-frame: none;
+  --radius-card: 22px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-canvas text-ink antialiased;
+  font-feature-settings: "tnum";
+}
+
+::selection {
+  @apply bg-brand-100 text-brand-900;
+}
+
+*:focus-visible {
+  @apply outline-none ring-2 ring-brand-500/50 ring-offset-2 ring-offset-white;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(133 138 150 / 0.4) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(133 138 150 / 0.4);
+  border-radius: 999px;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Diagonal hatch used for the "remaining" part of bars (as in the reference charts) */
+.hatch {
+  background-image: repeating-linear-gradient(-45deg, rgb(27 135 225 / 0.28) 0 2px, transparent 2px 6px);
+  background-color: rgb(27 135 225 / 0.06);
+}
+.hatch-light {
+  background-image: repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.55) 0 2px, transparent 2px 6px);
+}
+
+/* Blue "water" surface for the hero card */
+.surface-ocean {
+  background:
+    radial-gradient(120% 80% at 20% 0%, rgb(255 255 255 / 0.28), transparent 55%),
+    radial-gradient(90% 70% at 100% 100%, rgb(12 58 97 / 0.55), transparent 60%),
+    repeating-linear-gradient(115deg, rgb(255 255 255 / 0.05) 0 1px, transparent 1px 14px),
+    linear-gradient(160deg, #5aa6ec 0%, #1b87e1 45%, #125e9e 100%);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.3s ease-out both;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  aside,
+  header,
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Grids without an explicit column count get one clamped column, so wide content (charts, long
+   labels) can never push a card past the screen edge on small devices. grid-cols-* utilities win. */
+@layer base {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Dark sidebar scrollbar */
+.scrollbar-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.15) transparent;
+}
+.scrollbar-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-sidebar::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.15);
+  border-radius: 999px;
+}
